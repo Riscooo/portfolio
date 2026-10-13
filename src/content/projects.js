@@ -142,16 +142,16 @@ export const projects = [
     es: {
       category: 'IA para imprenta',
       tagline: 'Artes finales de baja resolución, listos para imprimir.',
-      description: 'Restaura y amplía imágenes pequeñas o comprimidas con modelos de IA locales, para que lleguen a imprenta nítidas. App de escritorio con su web.',
-      tech: ['Tauri', 'Rust', 'Python', 'ONNX'],
-      alt: 'Nítido restaurando una imagen de baja resolución.',
+      description: 'Convierte artes finales de baja resolución (JPG, PNG o PDF) en archivos para imprenta a su tamaño final, con textos, logos y caras limpios. Claude dirige la restauración con modelos ONNX y, si algo no convence, marcas la zona y la rehace.',
+      tech: ['Tauri', 'React', 'Python', 'ONNX', 'MCP'],
+      alt: 'El asistente de inicio de Nítido.',
     },
     en: {
       category: 'AI for print',
       tagline: 'Low-resolution artwork, ready to print.',
-      description: 'Restores and upscales small or compressed images with local AI models so they reach the printer sharp. A desktop app with its own website.',
-      tech: ['Tauri', 'Rust', 'Python', 'ONNX'],
-      alt: 'Nítido restoring a low-resolution image.',
+      description: 'Turns low-resolution artwork (JPG, PNG or PDF) into print-ready files at their final size, with clean text, logos and faces. Claude drives the restoration with ONNX models and, if something looks off, you mark the area and it redoes it.',
+      tech: ['Tauri', 'React', 'Python', 'ONNX', 'MCP'],
+      alt: 'Nítido’s setup assistant.',
     },
   },
   {
