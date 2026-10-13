@@ -1,0 +1,32 @@
+{
+  "name": "risco-portfolio",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Portfolio de Risco: una nube de partículas que se abre en sus 8 proyectos.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@fontsource-variable/jetbrains-mono": "5.1.0",
+    "@fontsource-variable/space-grotesk": "5.1.0",
+    "@fontsource-variable/unbounded": "5.1.0",
+    "gsap": "3.12.5",
+    "lenis": "1.1.18",
+    "postprocessing": "6.36.6",
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0",
+    "vite": "6.0.7",
+    "vitest": "2.1.8"
+  },
+  "allowScripts": {
+    "esbuild@0.24.2": true,
+    "esbuild@0.21.5": true
+  }
+}
