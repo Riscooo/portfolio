@@ -7,6 +7,8 @@ import { SECTIONS, sectionAt, storyState } from './story/timeline.js'
 import { initialLang } from './content/i18n.js'
 import { applyLang, savedLang } from './ui/lang.js'
 import { setupCopy } from './ui/copy.js'
+import { fillWithPlaceholder } from './ui/placeholder.js'
+import { projects } from './content/projects.js'
 import { createStage, webglReady } from './scene/stage.js'
 
 const root = document.documentElement
@@ -26,6 +28,13 @@ document.querySelector('[data-lang-switch]').addEventListener('click', event => 
   applyLang(lang)
 })
 setupCopy()
+
+// Fichas sin captura (o con la captura rota): la tarjeta con el nombre del proyecto.
+for (const [index, section] of projectSections.entries()) {
+  const img = section.querySelector('.frame img')
+  if (img.hasAttribute('data-placeholder')) fillWithPlaceholder(img, projects[index])
+  else img.addEventListener('error', () => { img.alt = ''; fillWithPlaceholder(img, projects[index]) }, { once: true })
+}
 
 // Medidas de cada tramo (cambian al redimensionar).
 let bounds = []

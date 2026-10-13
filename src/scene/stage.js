@@ -7,6 +7,7 @@ import { createParticles } from './particles.js'
 import { createPost } from './post.js'
 import { FpsGovernor, chooseQuality, gpuName } from './quality.js'
 import { layout } from './targets.js'
+import { placeholderCard } from '../ui/placeholder.js'
 
 const TAU = Math.PI * 2
 const PLANE_DISTANCE = 4.6
@@ -19,14 +20,22 @@ export function webglReady() {
   } catch { return false }
 }
 
-/** Las capturas, reducidas a la rejilla de partículas de cada proyecto (color medio de cada celda). */
+async function decode(src) {
+  const image = new Image()
+  image.decoding = 'async'
+  image.src = src
+  await image.decode()
+  return image
+}
+
+/**
+ * Las capturas, reducidas a la rejilla de partículas de cada proyecto (color medio de cada celda). Sin
+ * captura, o si no carga, la tarjeta con su nombre.
+ */
 async function loadImages({ cols, rows }) {
   return Promise.all(projects.map(async project => {
     try {
-      const image = new Image()
-      image.decoding = 'async'
-      image.src = project.image
-      await image.decode()
+      const image = project.image ? await decode(project.image).catch(() => placeholderCard(project)) : await placeholderCard(project)
       const canvas = Object.assign(document.createElement('canvas'), { width: cols, height: rows })
       const context = canvas.getContext('2d', { willReadFrequently: true })
       context.imageSmoothingQuality = 'high'

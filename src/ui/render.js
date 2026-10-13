@@ -20,7 +20,7 @@ export function renderProject(project, index, lang = 'es') {
   const text = project[lang]
   const p = field => `data-p="${project.id}.${field}"`
   return `
-  <section class="project" id="${project.id}" data-index="${index}" style="--tint:${project.color}" aria-labelledby="${project.id}-name">
+  <section class="project" id="${project.id}" data-index="${index}" style="--tint:${project.color}; --chars:${[...project.name].length}" aria-labelledby="${project.id}-name">
     <div class="pin">
       <article class="card">
         <p class="kicker"><span class="num">${pad(index)}</span><span class="rule"></span><span ${p('category')}>${escape(text.category)}</span></p>
@@ -32,7 +32,9 @@ export function renderProject(project, index, lang = 'es') {
         ${project.withDani ? `<p class="dani"><span class="dot"></span><span data-t="withDani">${escape(t(lang, 'withDani'))}</span> · <a href="https://github.com/dap0ry" target="_blank" rel="noopener">dap0ry</a></p>` : ''}
       </article>
       <figure class="shot">
-        <div class="frame"><img src="${escape(project.image)}" alt="${escape(text.alt)}" ${p('alt')} loading="lazy" decoding="async" width="1600" height="1000"></div>
+        <div class="frame">${project.image
+          ? `<img src="${escape(project.image)}" alt="${escape(text.alt)}" ${p('alt')} loading="lazy" decoding="async" width="1600" height="1000">`
+          : `<img alt="" data-placeholder width="1600" height="1000">`}</div>
       </figure>
     </div>
   </section>`

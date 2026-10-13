@@ -28,7 +28,7 @@ export const messages = {
   },
   en: {
     title: 'Risco — projects',
-    metaDescription: 'Projects by Risco (Manuel Unai Risco Vazquez): his own web browser, a Linux desktop, desktop apps and AI apps.',
+    metaDescription: 'Projects by Risco (Manuel Unai Risco Vazquez): a home-built web browser, a Linux desktop, desktop apps and AI apps.',
     fullName: 'Manuel Unai Risco Vazquez',
     tagline: 'I build software end to end: from my own browser and desktop to AI apps.',
     scrollHint: 'Scroll to open it',

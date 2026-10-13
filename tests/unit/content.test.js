@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { describe, expect, test } from 'vitest'
 import { projects } from '../../src/content/projects.js'
 import { LANGS, messages, t } from '../../src/content/i18n.js'
@@ -8,11 +9,14 @@ describe('projects', () => {
     expect(projects.map(p => p.name)).toEqual(['Kitsune', 'Nori', 'Yomi', 'Vela', 'InkShadow', 'Cartia', 'Nítido', 'Hakufu'])
   })
 
-  test('each project has a distinct neon color, a screenshot and https links only', () => {
+  test('each project has a distinct neon color, a screenshot that exists (or none yet) and https links only', () => {
     expect(new Set(projects.map(p => p.color)).size).toBe(8)
     for (const project of projects) {
       expect(project.color).toMatch(/^#[0-9a-f]{6}$/)
-      expect(project.image).toMatch(/^\/shots\/[a-z]+\.webp$/)
+      if (project.image !== null) {
+        expect(project.image).toMatch(/^\/shots\/[a-z]+\.webp$/)
+        expect(existsSync(new URL(`../../public${project.image}`, import.meta.url)), project.image).toBe(true)
+      }
       for (const url of Object.values(project.links)) expect(url).toMatch(/^https:\/\/[^\s]+$/)
     }
   })

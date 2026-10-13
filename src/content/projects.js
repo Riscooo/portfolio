@@ -92,7 +92,7 @@ export const projects = [
     id: 'inkshadow',
     name: 'InkShadow',
     color: '#a07bff',
-    image: '/shots/inkshadow.webp',
+    image: null, // sin captura todavía: se dibuja una tarjeta con su nombre (src/ui/placeholder.js)
     links: {},
     withDani: false,
     es: {
