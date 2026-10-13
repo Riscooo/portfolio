@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { describe, expect, test } from 'vitest'
-import { projects } from '../../src/content/projects.js'
+import { projects, smallImage } from '../../src/content/projects.js'
 import { LANGS, messages, t } from '../../src/content/i18n.js'
 
 describe('projects', () => {
@@ -15,7 +15,7 @@ describe('projects', () => {
       expect(project.color).toMatch(/^#[0-9a-f]{6}$/)
       if (project.image !== null) {
         expect(project.image).toMatch(/^\/shots\/[a-z]+\.webp$/)
-        expect(existsSync(new URL(`../../public${project.image}`, import.meta.url)), project.image).toBe(true)
+        for (const file of [project.image, smallImage(project.image)]) expect(existsSync(new URL(`../../public${file}`, import.meta.url)), file).toBe(true)
       }
       for (const url of Object.values(project.links)) expect(url).toMatch(/^https:\/\/[^\s]+$/)
     }

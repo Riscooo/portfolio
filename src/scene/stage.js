@@ -8,17 +8,11 @@ import { createPost } from './post.js'
 import { FpsGovernor, chooseQuality, gpuName } from './quality.js'
 import { layout } from './targets.js'
 import { placeholderCard } from '../ui/placeholder.js'
+import { smallImage } from '../content/projects.js'
+import { CONTEXT_ATTRIBUTES } from './support.js'
 
 const TAU = Math.PI * 2
 const PLANE_DISTANCE = 4.6
-
-/** WebGL 2 con texturas de punto flotante en las que se pueda dibujar: lo mínimo para la nube. */
-export function webglReady() {
-  try {
-    const gl = document.createElement('canvas').getContext('webgl2')
-    return Boolean(gl && gl.getExtension('EXT_color_buffer_float'))
-  } catch { return false }
-}
 
 async function decode(src) {
   const image = new Image()
@@ -30,28 +24,30 @@ async function decode(src) {
 
 /**
  * Las capturas, reducidas a la rejilla de partículas de cada proyecto (color medio de cada celda). Sin
- * captura, o si no carga, la tarjeta con su nombre.
+ * captura, o si no carga, la tarjeta con su nombre. La reducción la hace el navegador fuera del hilo
+ * principal (createImageBitmap); aquí solo se lee la rejilla, que es pequeña.
  */
 async function loadImages({ cols, rows }) {
   return Promise.all(projects.map(async project => {
     try {
-      const image = project.image ? await decode(project.image).catch(() => placeholderCard(project)) : await placeholderCard(project)
+      const source = project.image ? await decode(smallImage(project.image)).catch(() => placeholderCard(project)) : await placeholderCard(project)
+      const bitmap = await createImageBitmap(source, { resizeWidth: cols, resizeHeight: rows, resizeQuality: 'high' })
       const canvas = Object.assign(document.createElement('canvas'), { width: cols, height: rows })
       const context = canvas.getContext('2d', { willReadFrequently: true })
-      context.imageSmoothingQuality = 'high'
-      context.drawImage(image, 0, 0, cols, rows)
+      context.drawImage(bitmap, 0, 0, cols, rows) // por si el navegador no admite resizeWidth
+      bitmap.close()
       return context.getImageData(0, 0, cols, rows)
     } catch { return null }
   }))
 }
 
 /**
- * canvas: el lienzo. getTarget(): estado del scroll. frameFor(i): DOMRect del hueco de la captura del
+ * canvas: el lienzo y context, su WebGL 2 (de sceneContext). getTarget(): estado del scroll. frameFor(i): DOMRect del hueco de la captura del
  * proyecto i. onFrame(state, labels): por fotograma, el estado real (suavizado) y dónde están las
  * constelaciones en pantalla. reducedMotion: sin remolinos ni paralaje.
  */
-export function createStage(canvas, { getTarget, frameFor, onFrame = () => {}, reducedMotion = false }) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, stencil: false, powerPreference: 'high-performance' })
+export function createStage(canvas, { context, getTarget, frameFor, onFrame = () => {}, reducedMotion = false }) {
+  const renderer = new THREE.WebGLRenderer({ canvas, context, ...CONTEXT_ATTRIBUTES })
   renderer.toneMapping = THREE.NoToneMapping
   const quality = chooseQuality({
     coarsePointer: matchMedia('(pointer: coarse)').matches, width: innerWidth, height: innerHeight,

@@ -177,3 +177,6 @@ export const projects = [
     },
   },
 ]
+
+/** La captura de 800 px de ancho (móvil y partículas), junto a la de 1600. */
+export const smallImage = image => image.replace(/\.webp$/, '-800.webp')

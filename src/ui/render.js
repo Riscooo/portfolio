@@ -1,6 +1,6 @@
 // El HTML de la página a partir del contenido. Lo usa Vite al compilar (la página llega ya escrita, en
 // castellano) y el cambio de idioma reescribe solo los textos (data-t y data-p).
-import { projects } from '../content/projects.js'
+import { projects, smallImage } from '../content/projects.js'
 import { t } from '../content/i18n.js'
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
@@ -33,7 +33,7 @@ export function renderProject(project, index, lang = 'es') {
       </article>
       <figure class="shot">
         <div class="frame">${project.image
-          ? `<img src="${escape(project.image)}" alt="${escape(text.alt)}" ${p('alt')} loading="lazy" decoding="async" width="1600" height="1000">`
+          ? `<img src="${escape(project.image)}" srcset="${escape(smallImage(project.image))} 800w, ${escape(project.image)} 1600w" sizes="(max-width: 900px) 92vw, 46vw" alt="${escape(text.alt)}" ${p('alt')} loading="lazy" decoding="async" width="1600" height="1000">`
           : `<img alt="" data-placeholder width="1600" height="1000">`}</div>
       </figure>
     </div>

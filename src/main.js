@@ -9,7 +9,7 @@ import { applyLang, savedLang } from './ui/lang.js'
 import { setupCopy } from './ui/copy.js'
 import { fillWithPlaceholder } from './ui/placeholder.js'
 import { projects } from './content/projects.js'
-import { createStage, webglReady } from './scene/stage.js'
+import { sceneContext } from './scene/support.js'
 
 const root = document.documentElement
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -36,9 +36,16 @@ for (const [index, section] of projectSections.entries()) {
   else img.addEventListener('error', () => { img.alt = ''; fillWithPlaceholder(img, projects[index]) }, { once: true })
 }
 
-// Medidas de cada tramo (cambian al redimensionar).
+// Medidas de cada tramo y del recorrido (cambian al redimensionar).
+// innerHeight también se guarda: leerlo en cada fotograma puede forzar un recálculo del diseño.
 let bounds = []
-const measure = () => { bounds = sections.map(section => ({ top: section.offsetTop, height: section.offsetHeight })) }
+let total = 1
+let viewHeight = innerHeight
+const measure = () => {
+  viewHeight = innerHeight
+  bounds = sections.map(section => ({ top: section.offsetTop, height: section.offsetHeight }))
+  total = Math.max(1, document.documentElement.scrollHeight - viewHeight)
+}
 measure()
 addEventListener('resize', measure)
 new ResizeObserver(measure).observe(document.body)
@@ -85,33 +92,37 @@ if (location.hash) {
   if (index > 0) requestAnimationFrame(() => window.scrollTo(0, restOf(index)))
 }
 
-const target = () => storyState(scrollY, innerHeight, bounds)
+const target = () => storyState(scrollY, viewHeight, bounds)
 
-// La interfaz sigue al estado: posición de cada tramo, ficha, índice, progreso y nombres.
+// La interfaz sigue al estado: posición de cada tramo, ficha, índice, progreso y nombres. Se ejecuta en cada
+// fotograma, así que solo toca el DOM cuando un valor cambia de verdad (cada cambio recalcula estilos).
 const clamp01 = value => Math.min(1, Math.max(0, value))
-let lastSection = -1
+const written = new Map()
+const write = (element, key, value, apply) => {
+  let last = written.get(element)
+  if (!last) written.set(element, last = {})
+  if (last[key] === value) return
+  last[key] = value
+  apply(value)
+}
+const setVar = (element, name, value) => write(element, name, value, v => element.style.setProperty(name, v))
+
 function syncUi(scene, positions) {
   const story = target()
-  const section = sections[story.section]
-  section.style.setProperty('--p', story.t.toFixed(4))
-  if (story.section !== lastSection) {
-    for (const other of sections) if (other !== section) other.style.setProperty('--p', other.offsetTop < section.offsetTop ? '1' : '0')
-    lastSection = story.section
+  for (const [index, section] of sections.entries()) {
+    setVar(section, '--p', index === story.section ? story.t.toFixed(3) : index < story.section ? '1' : '0')
   }
-  const total = document.documentElement.scrollHeight - innerHeight
-  progressBar.style.setProperty('--progress', clamp01(scrollY / Math.max(1, total)).toFixed(4))
+  setVar(progressBar, '--progress', clamp01(scrollY / total).toFixed(3))
 
   // Ficha y captura del proyecto: siguen a la imagen que forman las partículas.
   for (const [index, element] of projectSections.entries()) {
     const visible = scene ? (scene.active === index ? scene.form : 0) : (story.active === index ? story.form : 0)
-    element.style.setProperty('--form', clamp01((visible - 0.3) / 0.55).toFixed(3))
-    element.style.setProperty('--formed', (scene ? clamp01((visible - 0.88) / 0.1) : clamp01(visible * 1.4)).toFixed(3))
+    setVar(element, '--form', clamp01((visible - 0.3) / 0.55).toFixed(3))
+    setVar(element, '--formed', (scene ? clamp01((visible - 0.88) / 0.1) : clamp01(visible * 1.4)).toFixed(3))
   }
-  const current = story.active
-  for (const link of navLinks) link.setAttribute('aria-current', String(Number(link.dataset.index) === current))
+  for (const link of navLinks) write(link, 'current', String(Number(link.dataset.index) === story.active), v => link.setAttribute('aria-current', v))
   const showNav = story.section >= 1 && story.section <= SECTIONS.length - 2
-  nav.style.setProperty('--nav', showNav ? '1' : '0')
-  nav.classList.toggle('visible', showNav)
+  write(nav, 'visible', showNav, v => { nav.style.setProperty('--nav', v ? '1' : '0'); nav.classList.toggle('visible', v) })
 
   if (scene && positions) {
     for (const [index, label] of labels.entries()) {
@@ -119,30 +130,37 @@ function syncUi(scene, positions) {
       const front = clamp01((depth + 3.4) / 4.5)
       const own = scene.active === index ? 1 - clamp01(scene.form * 3) : 1
       const others = scene.active >= 0 && scene.active !== index ? 0.35 : 1
-      const alpha = clamp01(scene.open * 1.4 - 0.4) * clamp01(1 - scene.drift * 1.8) * own * others * (0.35 + 0.65 * front)
-      label.style.opacity = alpha.toFixed(3)
-      label.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -100%) scale(${(0.85 + 0.25 * front).toFixed(3)})`
+      const alpha = clamp01(scene.open * 2.2 - 1.2) * clamp01(1 - scene.drift * 1.8) * own * others * (0.35 + 0.65 * front)
+      write(label, 'opacity', alpha.toFixed(2), v => { label.style.opacity = v })
+      if (alpha < 0.005) continue
+      write(label, 'transform', `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -100%) scale(${(0.85 + 0.25 * front).toFixed(3)})`, v => { label.style.transform = v })
     }
   }
 }
 
-let stage = null
-if (webglReady()) {
-  try {
-    stage = createStage(document.getElementById('scene'), {
+// La escena (three.js y el postprocesado) se descarga aparte, mientras la página ya se ve. Hasta que llega,
+// o si no hay WebGL, la interfaz sigue al scroll sola.
+let idle = 0
+const followScroll = () => { syncUi(null, null); idle = requestAnimationFrame(followScroll) }
+idle = requestAnimationFrame(followScroll)
+const withoutScene = error => {
+  if (error) console.warn('La escena 3D no ha podido arrancar; se muestra la versión sin WebGL.', error)
+  root.classList.add('no-webgl')
+}
+const canvas = document.getElementById('scene')
+const context = sceneContext(canvas)
+if (context) {
+  import('./scene/stage.js').then(({ createStage }) => {
+    const stage = createStage(canvas, {
+      context,
       getTarget: target,
       frameFor: index => projectSections[index]?.querySelector('.frame')?.getBoundingClientRect() ?? null,
       onFrame: syncUi,
       reducedMotion,
     })
+    cancelAnimationFrame(idle)
     root.dataset.quality = String(stage.quality.size)
-  } catch (error) {
-    console.warn('La escena 3D no ha podido arrancar; se muestra la versión sin WebGL.', error)
-    stage = null
-  }
-}
-if (!stage) {
-  root.classList.add('no-webgl')
-  const loop = () => { syncUi(null, null); requestAnimationFrame(loop) }
-  requestAnimationFrame(loop)
+  }).catch(withoutScene)
+} else {
+  withoutScene()
 }

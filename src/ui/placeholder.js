@@ -69,6 +69,9 @@ export function placeholderCard(project) {
 /** Pone la tarjeta en una <img> de la ficha (sin captura o con la captura rota). */
 export async function fillWithPlaceholder(img, project) {
   const canvas = await placeholderCard(project)
+  // toBlob codifica fuera del hilo principal (toDataURL lo bloquea casi medio segundo en un móvil).
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', 0.92))
   img.removeAttribute('loading')
-  img.src = canvas.toDataURL('image/webp', 0.92)
+  img.removeAttribute('srcset')
+  img.src = blob ? URL.createObjectURL(blob) : canvas.toDataURL('image/png')
 }

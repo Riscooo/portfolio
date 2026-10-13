@@ -81,7 +81,9 @@ img { display: block; max-width: 100%; }
 
 /* Apertura */
 .opening { height: 175vh; }
-.opening .pin { align-content: start; padding-top: 15vh; justify-items: center; text-align: center; opacity: calc(min(var(--p, 0) * 3, 1) * (1 - max(0, var(--p, 0) - 0.65) * 2.9)); }
+.opening .pin { align-content: start; padding-top: 15vh; justify-items: center; text-align: center; opacity: calc(min(var(--p, 0) * 3, 1) * (1 - max(0, var(--p, 0) - 0.65) * 2.9)); isolation: isolate; }
+.opening .pin::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse 46% 26% at 50% calc(15vh + 90px), rgb(4 6 12 / 0.82), rgb(4 6 12 / 0.5) 55%, rgb(4 6 12 / 0) 100%); }
 .section-title { margin: 0; font: 800 clamp(40px, 6.5vw, 96px)/0.95 var(--display); letter-spacing: -0.03em; background: linear-gradient(180deg, #fff, #9fdcff); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .section-body { margin: 20px auto 0; max-width: 40ch; font-size: clamp(16px, 1.4vw, 19px); color: var(--muted); }
 

@@ -12,5 +12,7 @@ const prerender = {
 
 export default defineConfig({
   plugins: [prerender],
-  build: { target: 'es2022', assetsInlineLimit: 0 },
+  // La escena (three.js + postprocesado) va en su propio trozo, cargado aparte: ronda los 560 kB.
+  build: { target: 'es2022', assetsInlineLimit: 0, chunkSizeWarningLimit: 600 },
+  test: { include: ['tests/unit/**/*.test.js'] }, // las de tests/e2e son de Playwright
 })

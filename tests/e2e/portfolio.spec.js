@@ -30,6 +30,9 @@ test('la página llega escrita y arranca la escena sin errores', async ({ page }
   await expect(page.locator('html')).not.toHaveClass(/no-webgl/)
   await page.waitForTimeout(2000)
   expect(errors).toEqual([])
+  const og = await page.request.get(await page.locator('meta[property="og:image"]').getAttribute('content').then(url => new URL(url).pathname))
+  expect(og.status()).toBe(200)
+  expect(og.headers()['content-type']).toMatch(/^image\//)
 })
 
 test('va fluida: al menos 30 fotogramas por segundo', async ({ page }) => {
@@ -62,7 +65,7 @@ test('sin WebGL se ve todo: fichas, capturas y la tarjeta de InkShadow', async (
     await expect(page.locator(`#${id} .frame img`)).toHaveCSS('opacity', '1')
     await expect.poll(() => page.locator(`#${id} .frame img`).evaluate(img => img.complete && img.naturalWidth)).toBeGreaterThan(0)
   }
-  await expect(page.locator('#inkshadow .frame img')).toHaveAttribute('src', /^data:image\//)
+  await expect(page.locator('#inkshadow .frame img')).toHaveAttribute('src', /^(blob|data):/)
   expect(errors.filter(e => !/WebGL/i.test(e))).toEqual([])
 })
 
