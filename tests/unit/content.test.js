@@ -5,6 +5,7 @@ import { LANGS, messages, t } from '../../src/content/i18n.js'
 describe('projects', () => {
   test('there are exactly the eight projects, in order', () => {
     expect(projects.map(p => p.id)).toEqual(['kitsune', 'nori', 'yomi', 'vela', 'inkshadow', 'cartia', 'nitido', 'hakufu'])
+    expect(projects.map(p => p.name)).toEqual(['Kitsune', 'Nori', 'Yomi', 'Vela', 'InkShadow', 'Cartia', 'Nítido', 'Hakufu'])
   })
 
   test('each project has a distinct neon color, a screenshot and https links only', () => {

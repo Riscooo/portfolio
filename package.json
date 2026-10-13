@@ -15,7 +15,6 @@
     "@fontsource-variable/jetbrains-mono": "5.1.0",
     "@fontsource-variable/space-grotesk": "5.1.0",
     "@fontsource-variable/unbounded": "5.1.0",
-    "gsap": "3.12.5",
     "lenis": "1.1.18",
     "postprocessing": "6.36.6",
     "three": "0.170.0"

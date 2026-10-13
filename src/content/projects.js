@@ -2,6 +2,7 @@
 export const projects = [
   {
     id: 'kitsune',
+    name: 'Kitsune',
     color: '#ff6b3d',
     image: '/shots/kitsune.webp',
     links: { web: 'https://kitsune-navegador.vercel.app', github: 'https://github.com/Riscooo/kitsune' },
@@ -23,6 +24,7 @@ export const projects = [
   },
   {
     id: 'nori',
+    name: 'Nori',
     color: '#2fe6c8',
     image: '/shots/nori.webp',
     links: { web: 'https://kizuna-steel.vercel.app' },
@@ -44,6 +46,7 @@ export const projects = [
   },
   {
     id: 'yomi',
+    name: 'Yomi',
     color: '#ff4fd8',
     image: '/shots/yomi.webp',
     links: {},
@@ -65,6 +68,7 @@ export const projects = [
   },
   {
     id: 'vela',
+    name: 'Vela',
     color: '#4c8dff',
     image: '/shots/vela.webp',
     links: {},
@@ -86,6 +90,7 @@ export const projects = [
   },
   {
     id: 'inkshadow',
+    name: 'InkShadow',
     color: '#a07bff',
     image: '/shots/inkshadow.webp',
     links: {},
@@ -107,6 +112,7 @@ export const projects = [
   },
   {
     id: 'cartia',
+    name: 'Cartia',
     color: '#ffc247',
     image: '/shots/cartia.webp',
     links: { web: 'https://cartia-zeta.vercel.app' },
@@ -128,6 +134,7 @@ export const projects = [
   },
   {
     id: 'nitido',
+    name: 'Nítido',
     color: '#4fd8ff',
     image: '/shots/nitido.webp',
     links: { web: 'https://nitido-app-ruby.vercel.app' },
@@ -149,6 +156,7 @@ export const projects = [
   },
   {
     id: 'hakufu',
+    name: 'Hakufu',
     color: '#ff4f6d',
     image: '/shots/hakufu.webp',
     links: { web: 'https://hakufu.vercel.app', github: 'https://github.com/dap0ry/Hakufu' },
